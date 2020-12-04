@@ -12,7 +12,6 @@ const transformData = (data: object): string => {
     newData.push(`${newKey}=${encodeURIComponent(data[key])}`)
   }
 
-  console.log('transformData:', newData)
   return newData.join('&')
 }
 const transformRequest = (data: any): string => {
@@ -72,9 +71,15 @@ export default class BaseGA {
     this._clientId = clientId
     return this
   }
+  getClientId (): string {
+    return this._clientId
+  }
   setUserId (userId: string) {
     this._userId = userId
     return this
+  }
+  getUserId (): string {
+    return this._userId
   }
   setUserAgent (userAgent: string) {
     this._userAgent = userAgent

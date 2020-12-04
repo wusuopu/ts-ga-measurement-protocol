@@ -94,6 +94,9 @@ export default class GA extends BaseGA {
   }
 
   async batch (data: Array<PageViewParam|ScreenViewParam|EventParam|TransactionParam|ItemParam|SocialParam|ExceptionParam|TimingParam>) {
-    return await this._batch(data)
+    let params = data.map((item) => {
+      return this.createHit(item)
+    })
+    return await this._batch(params)
   }
 }
