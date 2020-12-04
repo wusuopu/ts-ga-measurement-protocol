@@ -7,6 +7,7 @@ Current it only supports protocol v1.
 
 ```
 yarn add ga-measurement-protocol
+yarn add uuid, axios
 ```
 
 ## Usage
@@ -35,11 +36,13 @@ batch (params: any[])
 ## Example
 
 ```
-import GA, { genClientId } from 'ga-measurement-protocol'
+import GA from 'ga-measurement-protocol'
+import { v4 as uuidv4 } from 'uuid'
+import axios from 'axios'
 
-// trackingId, protocolVersion, enableDebug
-const ga = new GA('UA-XXXX-Y', '1', false)
-ga.setClientId(genClientId())
+// trackingId, AxiosStatic, protocolVersion, enableDebug
+const ga = new GA('UA-XXXX-Y', axios '1', false)
+ga.setClientId(uuidv4())    // clientId is a random string
 ga.setUserId('user-1')
 
 // send a pageview

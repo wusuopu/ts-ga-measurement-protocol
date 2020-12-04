@@ -1,4 +1,3 @@
-import axios, { AxiosInstance } from 'axios'
 import { ParameterMapping } from './param'
 import { assign } from './util'
 
@@ -38,10 +37,10 @@ export default class BaseGA {
   protected _disabled: boolean
   protected _debug: boolean
 
-  protected collectReq: AxiosInstance
-  protected batchReq: AxiosInstance
+  protected collectReq: any   // AxiosInstance
+  protected batchReq: any     // AxiosInstance
 
-  constructor(trackingId: string, protocolVersion: string = DEFAULT_PROTOCOL_VERSION, debug: boolean = false) {
+  constructor(trackingId: string, axios: any, protocolVersion: string = DEFAULT_PROTOCOL_VERSION, debug: boolean = false) {
     this._trackingId = trackingId
     this._version = protocolVersion
 
@@ -147,7 +146,7 @@ export default class BaseGA {
 
     try {
       this._log('collect:', data)
-      await this.collectReq({ data, })
+      await this.collectReq({ method: 'post', data, })
       return true
     } catch (error) {
       this._log('collect error:', error)
@@ -163,7 +162,7 @@ export default class BaseGA {
 
     try {
       this._log('batch:', data)
-      await this.batchReq({ data, })
+      await this.batchReq({ method: 'post', data, })
       return true
     } catch (error) {
       this._log('collect error:', error)

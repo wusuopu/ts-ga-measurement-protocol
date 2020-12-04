@@ -4,3 +4,4 @@
 tsconfig.json
 .npmignore
 *.log
+/tests/
