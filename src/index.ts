@@ -1,4 +1,3 @@
-import { v4 as uuidv4 } from 'uuid'
 import BaseGA from './base-ga'
 
 export type HitType = 'pageview' | 'screenview' | 'event' | 'transaction' | 'item' | 'social' | 'exception' | 'timing'
@@ -61,10 +60,6 @@ export interface TimingParam {
   domInteractiveTime  : number;
   contentLoadTime     : number;
   [key: string]: string|number; // Custom Dimensions
-}
-
-export const genClientId = (): string => {
-  return uuidv4()
 }
 
 export default class GA extends BaseGA {
