@@ -63,7 +63,7 @@ export const ParameterMapping = {
   transactionTax: 'tt',           // Number; Optional
   itemName        : 'in',         // Required for item hit type
   itemPrice       : 'ip',         // Number; Optional
-  temQuantity     : 'iq',         // Integer; Optional
+  itemQuantity    : 'iq',         // Integer; Optional
   itemCode        : 'ic',         // Optional
   itemCategory    : 'iv',         // Optional
   // Social Interactions
