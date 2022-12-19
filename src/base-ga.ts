@@ -1,34 +1,23 @@
-import { ParameterMapping } from './param'
-import { assign } from './util'
+export const DEFAULT_PROTOCOL_VERSION = '4'
 
-const DEFAULT_PROTOCOL_VERSION = '1'
-const EOL = '\n'
+export interface CollectEventPayload {
+  name: string;
+  // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference/events
+  params: object;
 
-const transformData = (data: object): string => {
-  let newData = []
-  for (let key in data) {
-    let newKey = ParameterMapping[key] || key
-    newData.push(`${newKey}=${encodeURIComponent(data[key])}`)
-  }
-
-  return newData.join('&')
 }
-const transformRequest = (data: any): string => {
-  if (Array.isArray(data)) {
-    // data with batch hits
-    let newData = []
-    for (let item of data) {
-      newData.push(transformData(item))
-    }
-    return newData.join(EOL)
-  } else {
-    // data with single hit
-    return transformData(data)
-  }
+export interface CollectPayload {
+  timestamp_micros?: number;
+  // https://developers.google.com/analytics/devguides/collection/protocol/ga4/user-properties?client_type=gtag
+  user_properties?: object;
+  non_personalized_ads?: boolean;
+  events: CollectEventPayload[];
+
 }
 
 export default class BaseGA {
-  protected _trackingId: string
+  protected _measurementId: string
+  protected _apiSecret: string
   protected _clientId: string
   protected _userId: string
   protected _version: string
@@ -38,32 +27,28 @@ export default class BaseGA {
   protected _debug: boolean
 
   protected collectReq: any   // AxiosInstance
-  protected batchReq: any     // AxiosInstance
 
-  constructor(trackingId: string, axios: any, protocolVersion: string = DEFAULT_PROTOCOL_VERSION, debug: boolean = false) {
-    this._trackingId = trackingId
-    this._version = protocolVersion
+  constructor(measurementId: string, apiSecret: string, axios: any, debug: boolean = false) {
+    this._measurementId = measurementId
+    this._apiSecret = apiSecret
 
-    this.collectReq = axios.create({
-      baseURL: 'https://www.google-analytics.com/collect',
-      method: 'post',
-      timeout: 10000,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      transformRequest: [transformRequest],
-    })
-    this.batchReq = axios.create({
-      baseURL: 'https://www.google-analytics.com/batch',
-      method: 'post',
-      timeout: 10000,
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      transformRequest: [transformRequest],
-    })
     this._disabled = false
     this._debug = debug
+
+    // https://developers.google.com/analytics/devguides/collection/protocol/ga4/validating-events?client_type=gtag
+    const baseURL = debug ? 'https://www.google-analytics.com/debug/mp/collect' : 'https://www.google-analytics.com/mp/collect'
+    this.collectReq = axios.create({
+      baseURL,
+      method: 'post',
+      timeout: 10000,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      params: {
+        api_secret: this._apiSecret,
+        measurement_id: this._measurementId,
+      },
+    })
   }
 
   setClientId (clientId: string) {
@@ -73,7 +58,7 @@ export default class BaseGA {
   getClientId (): string {
     return this._clientId
   }
-  setUserId (userId: string) {
+  setUserId (userId?: string) {
     this._userId = userId
     return this
   }
@@ -97,48 +82,21 @@ export default class BaseGA {
     this._disabled = false
     return this
   }
+  async startSesssion () {
+    // https://support.google.com/analytics/answer/9191807
+    return this._collect({
+      events: [
+        { name: 'session_start', params: {}, },
+      ]
+    })
+  }
 
-  start (parameters: object): object {
-    let params = assign({}, parameters, {sessionControl: 'start'})
-    return params
-  }
-  end (parameters: object): object {
-    let params = assign({}, parameters, {sessionControl: 'end'})
-    return params
-  }
-
-  protected get defaultParameters () {
-    let params: any = {}
-    if (this._version) {
-      params.protocolVersion = this._version
-    }
-    if (this._trackingId) {
-      params.trackingId = this._trackingId
-    }
-    if (this._clientId) {
-      params.clientId = this._clientId
-    }
-    if (this._userId) {
-      params.userId = this._userId
-      //params.user_Id = this._userId
-      //params.uid = this._userId
-    }
-    if (this._userAgent) {
-      params.userAgent = this._userAgent
-    }
-    return params
-  }
-  protected createHit (...arg: object[]): object {
-    let params: any = {}
-    params = assign(params, this.defaultParameters, ...arg)
-    return params
-  }
   protected _log (...arg: any[]) {
     if (this._debug) {
       console.log(...arg)
     }
   }
-  protected async _collect (data: any): Promise<boolean> {
+  protected async _collect (data: CollectPayload): Promise<any> {
     if (this._disabled) {
       this._log('ga is disabled')
       return false
@@ -146,27 +104,17 @@ export default class BaseGA {
 
     try {
       this._log('collect:', data)
-      await this.collectReq({ method: 'post', data, })
-      return true
+      const res = await this.collectReq({
+        method: 'post',
+        data: {
+          ...data,
+          client_id: this._clientId,
+          user_id: this._userId,
+        },
+      })
+      return res?.data
     } catch (error) {
       this._log('collect error:', error)
-      return false
-    }
-
-  }
-  protected async _batch (data: any): Promise<boolean> {
-    if (this._disabled) {
-      this._log('ga is disabled')
-      return false
-    }
-
-    try {
-      this._log('batch:', data)
-      await this.batchReq({ method: 'post', data, })
-      return true
-    } catch (error) {
-      this._log('collect error:', error)
-      return false
     }
   }
 }
