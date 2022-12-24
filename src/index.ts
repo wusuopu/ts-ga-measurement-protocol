@@ -14,15 +14,11 @@ export interface ScreenViewParam {
 }
 
 export default class GA extends BaseGA {
-  async pageview (params: PageViewParam) {
-    return await this._collect({
-      events: [ { name: 'page_view', params }, ]
-    })
+  pageviewEvent (params: PageViewParam): CollectEventPayload {
+    return { name: 'page_view', params }
   }
-  async screenview (params: ScreenViewParam) {
-    return await this._collect({
-      events: [ { name: 'screen_view', params }, ]
-    })
+  screenviewEvent (params: ScreenViewParam): CollectEventPayload {
+    return { name: 'screen_view', params }
   }
   async event (events: CollectEventPayload|CollectEventPayload[]) {
     // Custom events: https://support.google.com/analytics/answer/12229021

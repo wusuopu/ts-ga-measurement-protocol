@@ -3,13 +3,13 @@ export const DEFAULT_PROTOCOL_VERSION = '4'
 export interface CollectEventPayload {
   name: string;
   // https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference/events
-  params: object;
+  params: any;
 
 }
 export interface CollectPayload {
   timestamp_micros?: number;
   // https://developers.google.com/analytics/devguides/collection/protocol/ga4/user-properties?client_type=gtag
-  user_properties?: object;
+  user_properties?: any;
   non_personalized_ads?: boolean;
   events: CollectEventPayload[];
 
@@ -82,12 +82,15 @@ export default class BaseGA {
     this._disabled = false
     return this
   }
-  async startSesssion () {
+  async startSesssion (events: CollectEventPayload|CollectEventPayload[], sessionId: string) {
     // https://support.google.com/analytics/answer/9191807
+    if (!Array.isArray(events)) {
+      events = [events]
+    }
+    if (events[0].params) { events[0].params = {} }
+    events[0].params.session_id = sessionId
     return this._collect({
-      events: [
-        { name: 'session_start', params: {}, },
-      ]
+      events,
     })
   }
 
