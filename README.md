@@ -1,12 +1,13 @@
-# ga-measurement-protocol
+# ga-measurement-protocol 
+
 Google Analytics Measurement Protocol with typescript. It can run in nodejs, browser, react-native, etc.
 Current it only supports protocol v4.  
-If you want to use protocol v1, please install previous version: ` yarn add ga-measurement-protocol@1.1.2` 
+If you want to use protocol v1, please install previous version: ` yarn add ga-measurement-protocol@1.1.2`
 
 
 ## Installation
 
-```
+```console
 yarn add ga-measurement-protocol
 yarn add uuid, axios
 ```
@@ -15,9 +16,9 @@ yarn add uuid, axios
 Reference https://developers.google.com/analytics/devguides/collection/protocol/ga4/reference?client_type=gtag
 
 Create API Secret: Admin > Data Streams > choose your stream > Measurement Protocol > Create  
-Get Measurement ID: Admin > Data Streams > choose your stream > Measurement ID  
+Get Measurement ID: Admin > Data Streams > choose your stream > Measurement ID
 
-```
+```typescript
 pageviewEvent (params: PageViewParam): CollectEventPayload
 
 screenviewEvent (params: ScreenViewParam): CollectEventPayload
@@ -27,7 +28,7 @@ event (events: CollectEventPayload|CollectEventPayload[])
 
 ## Example
 
-```
+```typescript
 import GA from 'ga-measurement-protocol'
 import { v4 as uuidv4 } from 'uuid'
 import axios from 'axios'
