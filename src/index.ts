@@ -10,7 +10,7 @@ export interface ScreenViewParam {
   firebase_screen: string;
   firebase_previous_screen: string;
   screen_resolution?: string;     // widthxheight
-  [key: string]: string|number; // Custom Dimensions
+  [key: string]: string|number|undefined; // Custom Dimensions
 }
 
 export default class GA extends BaseGA {

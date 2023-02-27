@@ -18,10 +18,9 @@ export interface CollectPayload {
 export default class BaseGA {
   protected _measurementId: string
   protected _apiSecret: string
-  protected _clientId: string
-  protected _userId: string
-  protected _version: string
-  protected _userAgent: string
+  protected _clientId = ''
+  protected _userId = ''
+  protected _userAgent = ''
 
   protected _disabled: boolean
   protected _debug: boolean
@@ -58,7 +57,7 @@ export default class BaseGA {
   getClientId (): string {
     return this._clientId
   }
-  setUserId (userId?: string) {
+  setUserId (userId: string) {
     this._userId = userId
     return this
   }
